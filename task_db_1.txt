@@ -1,0 +1,135 @@
+Книжковий фонд бібліотеки.
+
+Предметні області:
+
+1. Книжка:
+- прізвище і ім’я автора;
+- назва книги;
+- жанр;
+- кількість сторінок;
+- рік видання;
+- видавництво;
+- дата поступлення у фонд бібліотеки.
+
+2. Видавництво:
+- назва;
+- адреса (країна, місто, вулиця, дім, поштовий індекс);
+- контактна особа;
+
+3. Автор
+- прізвище;
+- імя;
+- рік народження;
+- рік смерті(може бути пусто);
+- громадянство (назва країни);
+
+Реалізувати добавлення і вилучення книг, авторів, видавництв;
+--Add book:
+INSERT INTO book (id, author_id, name_book, page_count, publish_year, publication_id, come_date) VALUES ('5', '2', 'Life', '666', '2000', '1', '1999');
+--Remove book:
+DELETE FROM book WHERE name_book = 'Life';
+
+--Add author;
+INSERT INTO author (id, first_name, last_name, birth_year, citizenship) VALUES ('6', 'Tik', 'Tak', '1995', 'Ternopil');
+--Remove author:
+DELETE FROM author WHERE first_name = 'Tik';
+
+--Add publication;
+INSERT INTO publication (id, name, address_id, contact_person) VALUES ('10', 'Feel', '3', 'Sonya');
+--Remove publication:
+DELETE FROM publication WHERE name = 'Feel';
+
+Вивід усіх книг, авторів, видавництв;
+SELECT name_book FROM book;
+SELECT first_name, last_name FROM author;
+SELECT name FROM publication;
+
+Пошук по частині назві книги, видавництва чи прізвища автора;
+--Get book by name:
+SELECT name_book FROM book WHERE name_book LIKE '%t%';
+--Get publication by name:
+SELECT name FROM publication WHERE name LIKE 'F%';
+--Get author by name:
+SELECT first_name, last_name FROM author WHERE first_name LIKE '%o%' OR last_name LIKE '%o%';
+
+Вивід книг заданого автора; заданого видавництва;
+Передбачити можливість сортування
+SELECT b.name_book FROM book b
+JOIN author a ON b.author_id = a.id
+JOIN publication p ON b.publication_id = p.id
+WHERE a.first_name LIKE '%Pavlo%' OR a.last_name LIKE '%Dablo%'
+AND p.name = 'Feel'
+ORDER BY b.name_book ASC
+
+
+--CREATE TABLE public.address
+(
+  id integer NOT NULL DEFAULT nextval('address_id_seq'::regclass),
+  country text,
+  city text,
+  street text,
+  zip integer,
+  house integer,
+  CONSTRAINT ide PRIMARY KEY (id)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE public.address
+  OWNER TO postgres;
+
+--CREATE TABLE public.author
+(
+  id integer NOT NULL,
+  first_name text,
+  last_name text,
+  birth_year integer,
+  citizenship text,
+  CONSTRAINT idy PRIMARY KEY (id)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE public.author
+  OWNER TO postgres;
+
+--CREATE TABLE public.book
+(
+  id integer NOT NULL DEFAULT nextval('book_id_seq'::regclass),
+  author_id integer,
+  name_book text,
+  page_count integer,
+  publish_year integer,
+  publication_id integer,
+  come_date integer,
+  CONSTRAINT idg PRIMARY KEY (id),
+  CONSTRAINT author_idfk FOREIGN KEY (author_id)
+      REFERENCES public.author (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT publication_idfk FOREIGN KEY (publication_id)
+      REFERENCES public.publication (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE public.book
+  OWNER TO postgres;
+
+--CREATE TABLE public.publication
+(
+  id integer NOT NULL DEFAULT nextval('publication_id_seq'::regclass),
+  name text,
+  address_id integer,
+  contact_person text,
+  CONSTRAINT ids PRIMARY KEY (id),
+  CONSTRAINT address_idfk FOREIGN KEY (address_id)
+      REFERENCES public.address (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE public.publication
+  OWNER TO postgres;
+
